@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InMyRoom - 방 꾸미기 시뮬레이터</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1>InMyRoom 🏠</h1>
+            <div class="header-controls"> <!-- 스크린샷 저장 버튼과 방 초기화 버튼 -->
+                <button id="captureBtn" class="btn btn-primary" aria-label="방 스크린샷 저장">스크린샷 저장</button>
+                <button id="resetBtn" class="btn btn-secondary" aria-label="방 초기화">초기화</button>
+            </div>
+        </header>
+
+        <!-- 메인 컨테이너 -->
+        <div class="main-container">
+            <!-- 사이드바 - 가구 목록 -->
+            <aside class="sidebar" role="complementary" aria-label="방 꾸미기 도구">
+                <h3>방 꾸미기</h3>
+
+                <!-- 배경/바닥 설정 -->
+                <div class="category">
+                    <h4 class="category-header" data-category="background" tabindex="0" role="button"
+                        aria-expanded="true">
+                        배경/바닥 <span class="toggle-icon">▼</span>
+                    </h4>
+                    <div class="category-content" id="background-content"> <!-- 배경/바닥 설정 그룹 -->
+                        <div class="setting-group"> <!-- 배경 설정 그룹 -->
+                            <label for="backgroundSelect">배경:</label> <!-- 배경 선택 라벨 -->
+                            <select id="backgroundSelect" class="setting-select" aria-describedby="bg-help">
+                                <!-- 배경 선택 드롭다운 -->
+                                <option value="">기본</option>
+                                <option value="#f7fafc">밝은 회색</option>
+                                <option value="#cde4ff">파스텔 블루</option>
+                                <option value="#ffd5d5">파스텔 핑크</option>
+                                <option value="#d1ffd1">파스텔 그린</option>
+                                <option value="upload">이미지 업로드</option>
+                            </select>
+                            <input type="file" id="bgImageInput" accept="image/*" style="display: none;"
+                                aria-label="배경 이미지 업로드"> <!-- 배경 이미지 업로드 인풋 -->
+                            <span id="bgImageName" class="upload-feedback"></span> <!-- 배경 이미지 이름 피드백 -->
+                        </div>
+
+                        <div class="setting-group"> <!-- 바닥 설정 그룹 -->
+                            <label for="floorSelect">바닥:</label> <!-- 바닥 선택 라벨 -->
+                            <select id="floorSelect" class="setting-select" aria-describedby="floor-help">
+                                <!-- 바닥 선택 드롭다운 -->
+                                <option value="default">기본 우드</option>
+                                <option value="dark_wood">다크 우드</option>
+                                <option value="tile">타일</option>
+                                <option value="carpet">카펫</option>
+                                <option value="marble">대리석</option>
+                                <option value="upload">이미지 업로드</option>
+                            </select>
+                            <input type="file" id="floorImageInput" accept="image/*" style="display: none;"
+                                aria-label="바닥 이미지 업로드"> <!-- 바닥 이미지 업로드 인풋 -->
+                            <span id="floorImageName" class="upload-feedback"></span> <!-- 바닥 이미지 이름 피드백 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 가구 카테고리 -->
+                <div class="furniture-categories">
+                    <div class="category">
+                        <h4 class="category-header" data-category="furniture" tabindex="0" role="button"
+                            aria-expanded="true">
+                            가구 <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="category-content" id="furniture-content"> <!-- 가구 설정 그룹 -->
+                            <div class="furniture-items" role="list" aria-label="창문/문 목록"> <!-- 창문/문 목록 -->
+                                <div class="furniture-item" data-type="chair" data-width="60" data-height="60"><img
+                                        src="image/chair.png" class="furniture-preview-img" alt="의자"><span>의자</span>
+                                </div>
+                                <div class="furniture-item" data-type="chair_2" data-width="60" data-height="60"><img
+                                        src="image/chair_2.png" class="furniture-preview-img" alt="의자2"><span>의자2</span>
+                                </div>
+                                <div class="furniture-item" data-type="chair_3" data-width="60" data-height="60"><img
+                                        src="image/chair_3.png" class="furniture-preview-img" alt="의자3"><span>의자3</span>
+                                </div>
+                                <div class="furniture-item" data-type="table" data-width="80" data-height="80"><img
+                                        src="image/table.png" class="furniture-preview-img" alt="테이블"><span>테이블</span>
+                                </div>
+                                <div class="furniture-item" data-type="bed" data-width="120" data-height="80"><img
+                                        src="image/bed.png" class="furniture-preview-img" alt="침대"><span>침대</span></div>
+                                <div class="furniture-item" data-type="sofa" data-width="100" data-height="60"><img
+                                        src="image/sofa.png" class="furniture-preview-img" alt="소파"><span>소파</span>
+                                </div>
+                                <div class="furniture-item" data-type="window" data-width="80" data-height="60"><img
+                                        src="image/window.png" class="furniture-preview-img" alt="창문"><span>창문</span>
+                                </div>
+                                <div class="furniture-item" data-type="window_2" data-width="80" data-height="60"><img
+                                        src="image/window_2.png" class="furniture-preview-img"
+                                        alt="창문2"><span>창문2</span></div>
+                                <div class="furniture-item" data-type="window_3" data-width="80" data-height="60"><img
+                                        src="image/window_3.png" class="furniture-preview-img"
+                                        alt="창문3"><span>창문3</span></div>
+                                <div class="furniture-item" data-type="window_4" data-width="80" data-height="60"><img
+                                        src="image/window_4.png" class="furniture-preview-img"
+                                        alt="창문4"><span>창문4</span></div>
+                                <div class="furniture-item" data-type="door" data-width="60" data-height="80"><img
+                                        src="image/door.png" class="furniture-preview-img" alt="문"><span>문</span></div>
+                                <div class="furniture-item" data-type="door_2" data-width="60" data-height="80"><img
+                                        src="image/door_2.png" class="furniture-preview-img" alt="문2"><span>문2</span>
+                                </div>
+                                <div class="furniture-item" data-type="door_3" data-width="60" data-height="80"><img
+                                        src="image/door_3.png" class="furniture-preview-img" alt="문3"><span>문3</span>
+                                </div>
+                                <div class="furniture-item" data-type="door_4" data-width="60" data-height="80"><img
+                                        src="image/door_4.png" class="furniture-preview-img" alt="문4"><span>문4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <h4 class="category-header" data-category="decorations" tabindex="0" role="button"
+                            aria-expanded="true">
+                            장식 <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="category-content" id="decorations-content"> <!-- 장식 설정 그룹 -->
+                            <div class="furniture-items" role="list" aria-label="장식 목록"> <!-- 장식 목록 -->
+                                <div class="furniture-item" data-type="picture" data-width="50" data-height="40"><img
+                                        src="image/picture.png" class="furniture-preview-img" alt="그림"><span>그림</span>
+                                </div>
+                                <div class="furniture-item" data-type="plant" data-width="40" data-height="60"><img
+                                        src="image/plant.png" class="furniture-preview-img" alt="식물"><span>식물</span>
+                                </div>
+                                <div class="furniture-item" data-type="basil" data-width="40" data-height="60"><img
+                                        src="image/basil.png" class="furniture-preview-img" alt="바질"><span>바질</span>
+                                </div>
+                                <div class="furniture-item" data-type="lamp" data-width="30" data-height="50"><img
+                                        src="image/lamp.png" class="furniture-preview-img" alt="램프"><span>램프</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 캔버스 영역 -->
+            <main class="canvas-container" role="main">
+                <div class="canvas-wrapper"> <!-- 캔버스 래퍼 -->
+                    <div id="roomCanvas" class="room-canvas" role="application" aria-label="방 꾸미기 캔버스" tabindex="0">
+                        <!-- 방 꾸미기 캔버스 -->
+                        <div class="floor" data-floor-type="default" aria-hidden="true"></div> <!-- 바닥 -->
+                        <!-- 배치된 가구들이 여기에 추가됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 컨트롤 패널 -->
+                <div class="control-panel" role="toolbar" aria-label="가구 조작 도구"> <!-- 가구 조작 도구 -->
+                    <div class="control-group"> <!-- 레이어 컨트롤 그룹 -->
+                        <label>레이어:</label> <!-- 레이어 라벨 -->
+                        <button id="bringForward" class="btn btn-small" aria-label="선택된 가구를 앞으로 이동">앞으로</button>
+                        <button id="sendBackward" class="btn btn-small" aria-label="선택된 가구를 뒤로 이동">뒤로</button>
+                    </div>
+                    <div class="control-group"> <!-- 회전 컨트롤 그룹 -->
+                        <label>회전:</label> <!-- 회전 라벨 -->
+                        <button id="rotateLeft" class="btn btn-small" aria-label="선택된 가구를 왼쪽으로 회전">왼쪽</button>
+                        <button id="rotateRight" class="btn btn-small" aria-label="선택된 가구를 오른쪽으로 회전">오른쪽</button>
+                    </div>
+                    <div class="control-group"> <!-- 크기 컨트롤 그룹 -->
+                        <label>크기:</label> <!-- 크기 라벨 -->
+                        <button id="resizeSmaller" class="btn btn-small" aria-label="선택된 가구 크기 축소">작게</button>
+                        <button id="resizeBigger" class="btn btn-small" aria-label="선택된 가구 크기 확대">크게</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 선택된 요소 정보 -->
+        <div id="selectionInfo" class="selection-info hidden" role="complementary" aria-label="선택된 가구 정보">
+            <!-- 선택된 가구 정보 -->
+            <h4>선택된 요소</h4> <!-- 선택된 요소 제목 -->
+            <div class="info-content"> <!-- 선택된 요소 정보 컨텐츠 -->
+                <p>타입: <span id="selectedType">-</span></p> <!-- 타입 정보 -->
+                <p>위치: <span id="selectedPosition">-</span></p> <!-- 위치 정보 -->
+                <p>크기: <span id="selectedSize">-</span></p> <!-- 크기 정보 -->
+                <p>회전: <span id="selectedRotation">-</span></p> <!-- 회전 정보 -->
+                <p>레이어: <span id="selectedLayer">-</span></p> <!-- 레이어 정보 -->
+            </div>
+            <button id="deleteSelected" class="btn btn-danger" aria-label="선택된 가구 삭제">삭제</button> <!-- 선택된 가구 삭제 버튼 -->
+        </div>
+    </div>
+
+    <!-- 캡처 모달 -->
+    <div id="captureModal" class="modal hidden" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
+        aria-modal="true"> <!-- 캡처 모달 -->
+        <div class="modal-content"> <!-- 캡처 모달 컨텐츠 -->
+            <div class="modal-header"> <!-- 캡처 모달 헤더 -->
+                <h3 id="modalTitle">스크린샷</h3> <!-- 캡처 모달 제목 -->
+                <button id="closeModal" class="btn btn-small" aria-label="모달 닫기">✕</button> <!-- 캡처 모달 닫기 버튼 -->
+            </div>
+            <div class="modal-body"> <!-- 캡처 모달 바디 -->
+                <canvas id="captureCanvas" aria-label="캡처된 방 이미지"></canvas> <!-- 캡처된 방 이미지 -->
+                <div class="capture-controls"> <!-- 캡처 모달 컨트롤 그룹 -->
+                    <button id="downloadImage" class="btn btn-primary">다운로드</button> <!-- 다운로드 버튼 -->
+                    <button id="copyToClipboard" class="btn btn-secondary">복사</button> <!-- 복사 버튼 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
