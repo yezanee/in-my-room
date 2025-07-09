@@ -198,7 +198,30 @@ body {
     opacity: 0.4;
 }
 
-.sidebar h3 {
+/* 오른쪽 사이드바 */
+.sidebar-right {
+    width: 280px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8F6F2 100%);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+    border-left: 2px solid var(--border-color);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.sidebar-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-light) 50%, var(--primary-color) 100%);
+    opacity: 0.4;
+}
+
+.sidebar-right h3 {
     color: var(--text-primary);
     margin-bottom: 2rem;
     font-size: 1.25rem;
@@ -795,4 +818,92 @@ body {
 #floorSelect:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: 2px;
+}
+
+/* 이력 타임라인 스타일 */
+.history-timeline {
+    margin-top: 0;
+    padding: 1.25rem 1rem 1.5rem 1rem;
+    background: linear-gradient(135deg, #FFFDF8 0%, #F5F1EB 100%);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.history-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+    text-align: left;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.history-item {
+    background: #fff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    outline: none;
+}
+
+.history-item:hover, .history-item:focus-visible {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.15);
+}
+
+.history-item.active {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 1200px) {
+    .sidebar-right {
+        width: 250px;
+        padding: 1.5rem 1rem;
+    }
+    .history-list {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar-right {
+        width: 220px;
+        padding: 1rem 0.75rem;
+    }
+    .history-timeline {
+        padding: 0.75rem 0.5rem 1rem 0.5rem;
+    }
+    .history-title {
+        font-size: 0.95rem;
+    }
+    .history-list {
+        max-height: 200px;
+    }
+    .history-item {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.5rem;
+    }
 }

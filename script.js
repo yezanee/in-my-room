@@ -627,13 +627,22 @@ class FurnitureManager {
         // 가구 타입별 한국어 라벨 매핑 객체
         const labels = {
             chair: '의자',
+            chair_2: '의자2',
+            chair_3: '의자3',
             table: '테이블',
             bed: '침대',
             sofa: '소파',
             window: '창문',
+            window_2: '창문2',
+            window_3: '창문3',
+            window_4: '창문4',
             door: '문',
+            door_2: '문2',
+            door_3: '문3',
+            door_4: '문4',
             picture: '그림',
             plant: '식물',
+            basil: '바질',
             lamp: '램프'
         };
         // 매핑된 라벨이 있으면 반환, 없으면 원본 타입 반환 (안전장치)
@@ -1103,6 +1112,24 @@ class DragDropManager {
             // 드래그가 끝났으므로 전역 이벤트 추적 불필요
             document.removeEventListener('mousemove', this._boundOnGlobalDrag);
             document.removeEventListener('mouseup', this._boundOnGlobalDragEnd);
+
+            // 이력 추가 (앱 인스턴스가 있는 경우)
+            const app = window.roomApp;
+            if (app && app.pushHistory) {
+                let label = '';
+                if (this.state.dragMode === 'new') {
+                    // 새 가구 추가인 경우, 가구 타입 정보를 포함
+                    const furnitureType = this.state.selectedFurniture?.dataset.type;
+                    const furnitureLabel = app.getFurnitureTypeLabel(furnitureType);
+                    label = `${furnitureLabel} 추가`;
+                } else {
+                    // 기존 가구 이동인 경우, 선택된 가구의 타입 정보를 포함
+                    const furnitureType = this.state.selectedFurniture?.dataset.type;
+                    const furnitureLabel = app.getFurnitureTypeLabel(furnitureType);
+                    label = `${furnitureLabel} 이동`;
+                }
+                setTimeout(() => app.pushHistory(label), 100);
+            }
         } catch (error) {
             ErrorHandler.handle(error, '드래그 종료');
         }
@@ -1628,6 +1655,107 @@ class InMyRoomApp {
         this.dragDropManager = new DragDropManager(this.state, this.furnitureManager); // 드래그 앤 드롭
         this.screenshotManager = new ScreenshotManager(this.state, this.floorManager); // 스크린샷
         this.stateManager = new StateManager(this.state, this.floorManager, this.backgroundManager, this.furnitureManager); // 상태 저장/로드
+        
+        // 이력 타임라인 초기화
+        this.historyTimeline = [];
+        this.historyPointer = -1;
+        this.HISTORY_LIMIT = 10;
+    }
+
+    // 이력 타임라인 관련 메서드들
+    snapshotRoomState() {
+        const furnitureData = [];
+        this.state.getAllFurniture().forEach(furniture => {
+            furnitureData.push({
+                type: furniture.dataset.type,
+                width: parseInt(furniture.style.width),
+                height: parseInt(furniture.style.height),
+                left: parseInt(furniture.style.left),
+                top: parseInt(furniture.style.top),
+                zIndex: parseInt(furniture.style.zIndex),
+                transform: furniture.style.transform || ''
+            });
+        });
+        return {
+            furniture: JSON.parse(JSON.stringify(furnitureData)),
+            background: JSON.parse(JSON.stringify(this.state.background)),
+            floor: JSON.parse(JSON.stringify(this.state.floor)),
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    // 가구 타입을 한국어로 변환하는 메서드
+    getFurnitureTypeLabel(type) {
+        const labels = {
+            chair: '의자',
+            chair_2: '의자2',
+            chair_3: '의자3',
+            table: '테이블',
+            bed: '침대',
+            sofa: '소파',
+            window: '창문',
+            window_2: '창문2',
+            window_3: '창문3',
+            window_4: '창문4',
+            door: '문',
+            door_2: '문2',
+            door_3: '문3',
+            door_4: '문4',
+            picture: '그림',
+            plant: '식물',
+            basil: '바질',
+            lamp: '램프'
+        };
+        return labels[type] || type;
+    }
+
+    pushHistory(label) {
+        // Remove redo states if any
+        if (this.historyPointer < this.historyTimeline.length - 1) {
+            this.historyTimeline = this.historyTimeline.slice(0, this.historyPointer + 1);
+        }
+        // Add new snapshot
+        const snapshot = this.snapshotRoomState();
+        snapshot.label = label || '이력';
+        this.historyTimeline.push(snapshot);
+        // Limit history length
+        if (this.historyTimeline.length > this.HISTORY_LIMIT) {
+            this.historyTimeline.shift();
+        }
+        this.historyPointer = this.historyTimeline.length - 1;
+        this.renderHistoryTimeline();
+    }
+
+    renderHistoryTimeline() {
+        const list = document.getElementById('historyList');
+        if (!list) return;
+        list.innerHTML = '';
+        this.historyTimeline.forEach((snap, idx) => {
+            const li = document.createElement('li');
+            li.className = 'history-item' + (idx === this.historyPointer ? ' active' : '');
+            li.tabIndex = 0;
+            li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', idx === this.historyPointer ? 'true' : 'false');
+            li.textContent = (snap.label || '이력') + ' #' + (idx + 1);
+            li.title = new Date(snap.timestamp).toLocaleString();
+            li.addEventListener('click', () => this.restoreHistory(idx));
+            li.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') this.restoreHistory(idx);
+            });
+            list.appendChild(li);
+        });
+    }
+
+    async restoreHistory(idx) {
+        if (idx < 0 || idx >= this.historyTimeline.length) return;
+        const snap = this.historyTimeline[idx];
+        // Use StateManager's restore logic
+        await this.stateManager.clearAllFurniture();
+        await this.stateManager.restoreBackground(snap.background);
+        await this.stateManager.restoreFloor(snap.floor);
+        await this.stateManager.restoreFurniture(snap.furniture);
+        this.historyPointer = idx;
+        this.renderHistoryTimeline();
     }
 
     // 애플리케이션 초기화 메서드 - 모든 구성 요소를 순차적으로 초기화
@@ -1655,6 +1783,9 @@ class InMyRoomApp {
             window.addEventListener('beforeunload', () => {
                 this.stateManager.saveState();
             });
+
+            // 이력 타임라인 초기화
+            this.pushHistory('초기 상태');
 
             console.log('InMyRoom 애플리케이션이 성공적으로 초기화되었습니다');
         } catch (error) {
@@ -1688,31 +1819,49 @@ class InMyRoomApp {
         // 가구를 앞으로 가져오기 버튼 (z-index 증가)
         document.getElementById('bringForward')?.addEventListener('click', () => {
             this.furnitureManager.bringForward();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 앞으로 이동`);
         });
 
         // 가구를 뒤로 보내기 버튼 (z-index 감소)
         document.getElementById('sendBackward')?.addEventListener('click', () => {
             this.furnitureManager.sendBackward();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 뒤로 이동`);
         });
 
         // 가구 왼쪽 회전 버튼 (반시계방향)
         document.getElementById('rotateLeft')?.addEventListener('click', () => {
             this.furnitureManager.rotateLeft();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 회전`);
         });
 
         // 가구 오른쪽 회전 버튼 (시계방향)
         document.getElementById('rotateRight')?.addEventListener('click', () => {
             this.furnitureManager.rotateRight();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 회전`);
         });
 
         // 가구 크기 줄이기 버튼
         document.getElementById('resizeSmaller')?.addEventListener('click', () => {
             this.furnitureManager.resizeSmaller();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 크기 조절`);
         });
 
         // 가구 크기 늘리기 버튼
         document.getElementById('resizeBigger')?.addEventListener('click', () => {
             this.furnitureManager.resizeBigger();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 크기 조절`);
         });
 
         // ============================================
@@ -1723,38 +1872,58 @@ class InMyRoomApp {
         // 가구 왼쪽 정렬 버튼
         document.getElementById('alignLeft')?.addEventListener('click', () => {
             this.furnitureManager.alignLeft();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 가구 가운데 정렬 버튼
         document.getElementById('alignCenter')?.addEventListener('click', () => {
             this.furnitureManager.alignCenter();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 가구 오른쪽 정렬 버튼
         document.getElementById('alignRight')?.addEventListener('click', () => {
             this.furnitureManager.alignRight();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 가구 상단 정렬 버튼
         document.getElementById('alignTop')?.addEventListener('click', () => {
             this.furnitureManager.alignTop();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 가구 중앙 정렬 버튼
         document.getElementById('alignMiddle')?.addEventListener('click', () => {
             this.furnitureManager.alignMiddle();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 가구 하단 정렬 버튼
         document.getElementById('alignBottom')?.addEventListener('click', () => {
             this.furnitureManager.alignBottom();
+            const furniture = this.state.getSelectedFurniture();
+            const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
+            this.pushHistory(`${furnitureLabel} 정렬`);
         });
 
         // 선택된 가구 삭제 버튼 (확인 다이얼로그 포함)
         document.getElementById('deleteSelected')?.addEventListener('click', () => {
             const furniture = this.state.getSelectedFurniture();
             if (furniture && confirm('선택된 가구를 삭제하시겠습니까?')) {
+                const furnitureLabel = this.getFurnitureTypeLabel(furniture.dataset.type);
                 this.furnitureManager.deleteFurniture(furniture);
+                this.pushHistory(`${furnitureLabel} 삭제`);
             }
         });
 
@@ -1877,7 +2046,9 @@ class InMyRoomApp {
             if (e.key === 'Delete' || e.key === 'Backspace') {
                 e.preventDefault(); // 기본 동작 방지 (페이지 뒤로가기 등)
                 if (confirm('선택된 가구를 삭제하시겠습니까?')) {
+                    const furnitureLabel = this.getFurnitureTypeLabel(furniture.dataset.type);
                     this.furnitureManager.deleteFurniture(furniture);
+                    this.pushHistory(`${furnitureLabel} 삭제`);
                 }
             }
 
@@ -1901,6 +2072,11 @@ class InMyRoomApp {
                         this.furnitureManager.moveFurniture(0, step);  // 아래쪽 이동
                         break;
                 }
+                // 이동 후 이력 추가
+                setTimeout(() => {
+                    const furnitureLabel = this.getFurnitureTypeLabel(furniture.dataset.type);
+                    this.pushHistory(`${furnitureLabel} 이동`);
+                }, 100);
             }
         });
     }
