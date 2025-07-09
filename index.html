@@ -156,6 +156,20 @@
                     </div>
                 </div>
 
+                <!-- 선택된 요소 정보 -->
+                <div id="selectionInfo" class="selection-info hidden" role="complementary" aria-label="선택된 가구 정보">
+                    <!-- 선택된 가구 정보 -->
+                    <h4>선택된 요소</h4> <!-- 선택된 요소 제목 -->
+                    <div class="info-content"> <!-- 선택된 요소 정보 컨텐츠 -->
+                        <p>타입: <span id="selectedType">-</span></p> <!-- 타입 정보 -->
+                        <p>위치: <span id="selectedPosition">-</span></p> <!-- 위치 정보 -->
+                        <p>크기: <span id="selectedSize">-</span></p> <!-- 크기 정보 -->
+                        <p>회전: <span id="selectedRotation">-</span></p> <!-- 회전 정보 -->
+                        <p>레이어: <span id="selectedLayer">-</span></p> <!-- 레이어 정보 -->
+                    </div>
+                    <button id="deleteSelected" class="btn btn-danger" aria-label="선택된 가구 삭제">삭제</button> <!-- 선택된 가구 삭제 버튼 -->
+                </div>
+
                 <!-- 컨트롤 패널 -->
                 <div class="control-panel" role="toolbar" aria-label="가구 조작 도구"> <!-- 가구 조작 도구 -->
                     <div class="control-group"> <!-- 레이어 컨트롤 그룹 -->
@@ -200,34 +214,20 @@
             </aside>
         </div>
 
-        <!-- 선택된 요소 정보 -->
-        <div id="selectionInfo" class="selection-info hidden" role="complementary" aria-label="선택된 가구 정보">
-            <!-- 선택된 가구 정보 -->
-            <h4>선택된 요소</h4> <!-- 선택된 요소 제목 -->
-            <div class="info-content"> <!-- 선택된 요소 정보 컨텐츠 -->
-                <p>타입: <span id="selectedType">-</span></p> <!-- 타입 정보 -->
-                <p>위치: <span id="selectedPosition">-</span></p> <!-- 위치 정보 -->
-                <p>크기: <span id="selectedSize">-</span></p> <!-- 크기 정보 -->
-                <p>회전: <span id="selectedRotation">-</span></p> <!-- 회전 정보 -->
-                <p>레이어: <span id="selectedLayer">-</span></p> <!-- 레이어 정보 -->
-            </div>
-            <button id="deleteSelected" class="btn btn-danger" aria-label="선택된 가구 삭제">삭제</button> <!-- 선택된 가구 삭제 버튼 -->
-        </div>
-    </div>
-
-    <!-- 캡처 모달 -->
-    <div id="captureModal" class="modal hidden" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
-        aria-modal="true"> <!-- 캡처 모달 -->
-        <div class="modal-content"> <!-- 캡처 모달 컨텐츠 -->
-            <div class="modal-header"> <!-- 캡처 모달 헤더 -->
-                <h3 id="modalTitle">스크린샷</h3> <!-- 캡처 모달 제목 -->
-                <button id="closeModal" class="btn btn-small" aria-label="모달 닫기">✕</button> <!-- 캡처 모달 닫기 버튼 -->
-            </div>
-            <div class="modal-body"> <!-- 캡처 모달 바디 -->
-                <canvas id="captureCanvas" aria-label="캡처된 방 이미지"></canvas> <!-- 캡처된 방 이미지 -->
-                <div class="capture-controls"> <!-- 캡처 모달 컨트롤 그룹 -->
-                    <button id="downloadImage" class="btn btn-primary">다운로드</button> <!-- 다운로드 버튼 -->
-                    <button id="copyToClipboard" class="btn btn-secondary">복사</button> <!-- 복사 버튼 -->
+        <!-- 캡처 모달 -->
+        <div id="captureModal" class="modal hidden" tabindex="-1" role="dialog" aria-labelledby="modalTitle"
+            aria-modal="true"> <!-- 캡처 모달 -->
+            <div class="modal-content"> <!-- 캡처 모달 컨텐츠 -->
+                <div class="modal-header"> <!-- 캡처 모달 헤더 -->
+                    <h3 id="modalTitle">스크린샷</h3> <!-- 캡처 모달 제목 -->
+                    <button id="closeModal" class="btn btn-small" aria-label="모달 닫기">✕</button> <!-- 캡처 모달 닫기 버튼 -->
+                </div>
+                <div class="modal-body"> <!-- 캡처 모달 바디 -->
+                    <canvas id="captureCanvas" aria-label="캡처된 방 이미지"></canvas> <!-- 캡처된 방 이미지 -->
+                    <div class="capture-controls"> <!-- 캡처 모달 컨트롤 그룹 -->
+                        <button id="downloadImage" class="btn btn-primary">다운로드</button> <!-- 다운로드 버튼 -->
+                        <button id="copyToClipboard" class="btn btn-secondary">복사</button> <!-- 복사 버튼 -->
+                    </div>
                 </div>
             </div>
         </div>
