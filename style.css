@@ -907,3 +907,27 @@ body {
         padding: 0.4rem 0.5rem;
     }
 }
+
+/* 컨트롤 패널 버튼 비활성화 스타일 */
+.control-panel .btn.disabled,
+.control-panel .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f0f0f0;
+    color: #999;
+    border-color: #ddd;
+}
+
+.control-panel .btn.disabled:hover,
+.control-panel .btn:disabled:hover {
+    background-color: #f0f0f0;
+    color: #999;
+    border-color: #ddd;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 컨트롤 패널 그룹 비활성화 시 시각적 피드백 */
+.control-group:has(.btn.disabled) label {
+    color: #999;
+}
