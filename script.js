@@ -786,6 +786,125 @@ class FurnitureManager {
             ErrorHandler.handle(error, '가구 이동');
         }
     }
+
+    // ============================================
+    // 가구 정렬 메서드들 - 선택된 가구를 정렬하는 기능들
+    // 드래그로 대략 배치한 후 마무리 정렬에 유용
+    // ============================================
+
+    // 선택된 가구를 왼쪽으로 정렬하는 메서드
+    alignLeft() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const width = parseInt(furniture.style.width) || 60;
+            const newLeft = CONSTANTS.CANVAS_PADDING;
+            
+            furniture.style.left = newLeft + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 왼쪽으로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '왼쪽 정렬');
+        }
+    }
+
+    // 선택된 가구를 가운데로 정렬하는 메서드
+    alignCenter() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const canvasRect = this.roomCanvas.getBoundingClientRect();
+            const width = parseInt(furniture.style.width) || 60;
+            const newLeft = (canvasRect.width - width) / 2;
+            
+            furniture.style.left = newLeft + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 가운데로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '가운데 정렬');
+        }
+    }
+
+    // 선택된 가구를 오른쪽으로 정렬하는 메서드
+    alignRight() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const canvasRect = this.roomCanvas.getBoundingClientRect();
+            const width = parseInt(furniture.style.width) || 60;
+            const newLeft = canvasRect.width - width - CONSTANTS.CANVAS_PADDING;
+            
+            furniture.style.left = newLeft + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 오른쪽으로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '오른쪽 정렬');
+        }
+    }
+
+    // 선택된 가구를 상단으로 정렬하는 메서드
+    alignTop() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const newTop = CONSTANTS.CANVAS_PADDING;
+            
+            furniture.style.top = newTop + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 상단으로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '상단 정렬');
+        }
+    }
+
+    // 선택된 가구를 중앙으로 정렬하는 메서드
+    alignMiddle() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const canvasRect = this.roomCanvas.getBoundingClientRect();
+            const height = parseInt(furniture.style.height) || 60;
+            const floorHeight = CONSTANTS.FLOOR_HEIGHT;
+            const availableHeight = canvasRect.height - floorHeight - CONSTANTS.CANVAS_PADDING * 2;
+            const newTop = CONSTANTS.CANVAS_PADDING + (availableHeight - height) / 2;
+            
+            furniture.style.top = newTop + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 중앙으로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '중앙 정렬');
+        }
+    }
+
+    // 선택된 가구를 하단으로 정렬하는 메서드 (바닥 위)
+    alignBottom() {
+        const furniture = this.state.getSelectedFurniture();
+        if (!furniture) return;
+
+        try {
+            const canvasRect = this.roomCanvas.getBoundingClientRect();
+            const height = parseInt(furniture.style.height) || 60;
+            const floorHeight = CONSTANTS.FLOOR_HEIGHT;
+            const newTop = canvasRect.height - floorHeight - height - CONSTANTS.CANVAS_PADDING;
+            
+            furniture.style.top = newTop + 'px';
+            this.updateSelectionInfo();
+            
+            ErrorHandler.showSuccess('가구가 하단으로 정렬되었습니다');
+        } catch (error) {
+            ErrorHandler.handle(error, '하단 정렬');
+        }
+    }
 }
 
 // 드래그 앤 드롭 관리 클래스 - 마우스로 가구를 끌어서 배치하고 이동하는 기능
@@ -1594,6 +1713,41 @@ class InMyRoomApp {
         // 가구 크기 늘리기 버튼
         document.getElementById('resizeBigger')?.addEventListener('click', () => {
             this.furnitureManager.resizeBigger();
+        });
+
+        // ============================================
+        // 가구 정렬 버튼들
+        // 선택된 가구를 정렬하는 기능들
+        // ============================================
+
+        // 가구 왼쪽 정렬 버튼
+        document.getElementById('alignLeft')?.addEventListener('click', () => {
+            this.furnitureManager.alignLeft();
+        });
+
+        // 가구 가운데 정렬 버튼
+        document.getElementById('alignCenter')?.addEventListener('click', () => {
+            this.furnitureManager.alignCenter();
+        });
+
+        // 가구 오른쪽 정렬 버튼
+        document.getElementById('alignRight')?.addEventListener('click', () => {
+            this.furnitureManager.alignRight();
+        });
+
+        // 가구 상단 정렬 버튼
+        document.getElementById('alignTop')?.addEventListener('click', () => {
+            this.furnitureManager.alignTop();
+        });
+
+        // 가구 중앙 정렬 버튼
+        document.getElementById('alignMiddle')?.addEventListener('click', () => {
+            this.furnitureManager.alignMiddle();
+        });
+
+        // 가구 하단 정렬 버튼
+        document.getElementById('alignBottom')?.addEventListener('click', () => {
+            this.furnitureManager.alignBottom();
         });
 
         // 선택된 가구 삭제 버튼 (확인 다이얼로그 포함)

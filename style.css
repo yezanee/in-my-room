@@ -509,12 +509,13 @@ body {
     padding: 1.5rem;
     border-top: 2px solid var(--border-color);
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     box-shadow: var(--shadow-md);
     position: relative;
+    min-height: 120px;
 }
 
 .control-panel::before {
