@@ -1376,7 +1376,7 @@ class StateManager {
             }
         } else if (backgroundData.type && backgroundData.type.startsWith('#')) {
             // 색상 배경 복원 (16진수 색상 코드)
-            canvasElement.style.backgroundColor = backgroundData.type;
+            canvasElement.style.setProperty('background', backgroundData.type, 'important');
         }
 
         // UI 드롭다운도 함께 업데이트 (사용자 인터페이스 동기화)
