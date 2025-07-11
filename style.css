@@ -179,7 +179,7 @@ body {
 .sidebar {
     width: var(--sidebar-width);
     background: linear-gradient(180deg, #FFFFFF 0%, #F8F6F2 100%);
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1.5rem;
     overflow-y: auto;
     border-right: 2px solid var(--border-color);
     flex-shrink: 0;
@@ -221,7 +221,7 @@ body {
     opacity: 0.4;
 }
 
-.sidebar-right h3 {
+.sidebar-left {
     color: var(--text-primary);
     margin-bottom: 2rem;
     font-size: 1.25rem;
@@ -240,7 +240,7 @@ body {
 
 .category-header {
     color: var(--text-secondary);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -574,33 +574,33 @@ body {
 /* 선택 정보 패널 */
 .selection-info {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 16px;
+    right: 16px;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 2rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 1.1rem 1.2rem;
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
-    min-width: 280px;
+    box-shadow: var(--shadow-md);
+    min-width: 180px;
+    max-width: 220px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    border: 2px solid var(--border-color);
-    max-width: 320px;
+    gap: 0.7rem;
+    border: 1.5px solid var(--border-color);
 }
 
 .selection-info h4 {
     color: var(--text-primary);
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 0.3em 0;
     letter-spacing: -0.01em;
     text-align: center;
-    padding: 0.75rem;
+    padding: 0.5rem 0.2rem;
     background: var(--secondary-color);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--border-color);
 }
 
@@ -611,12 +611,12 @@ body {
 }
 
 .info-content p {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
     margin: 0;
-    padding: 0.5rem;
+    padding: 0.3rem 0.5rem;
     background: var(--secondary-color);
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px solid var(--border-color);
 }
 
@@ -931,4 +931,24 @@ body {
 /* 컨트롤 패널 그룹 비활성화 시 시각적 피드백 */
 .control-group:has(.btn.disabled) label {
     color: #999;
+}
+
+#deleteSelected.btn {
+    font-size: 0.92rem;
+    padding: 0.4em 1.1em;
+    margin-top: 0.5em;
+}
+
+.sidebar-left,
+.sidebar-right h3 {
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-align: center;
+    padding: 1rem;
+    background: var(--secondary-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
 }

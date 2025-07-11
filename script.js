@@ -806,131 +806,12 @@ class FurnitureManager {
         }
     }
 
-    // ============================================
-    // 가구 정렬 메서드들 - 선택된 가구를 정렬하는 기능들
-    // 드래그로 대략 배치한 후 마무리 정렬에 유용
-    // ============================================
-
-    // 선택된 가구를 왼쪽으로 정렬하는 메서드
-    alignLeft() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const width = parseInt(furniture.style.width) || 60;
-            const newLeft = CONSTANTS.CANVAS_PADDING;
-            
-            furniture.style.left = newLeft + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 왼쪽으로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '왼쪽 정렬');
-        }
-    }
-
-    // 선택된 가구를 가운데로 정렬하는 메서드
-    alignCenter() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const canvasRect = this.roomCanvas.getBoundingClientRect();
-            const width = parseInt(furniture.style.width) || 60;
-            const newLeft = (canvasRect.width - width) / 2;
-            
-            furniture.style.left = newLeft + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 가운데로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '가운데 정렬');
-        }
-    }
-
-    // 선택된 가구를 오른쪽으로 정렬하는 메서드
-    alignRight() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const canvasRect = this.roomCanvas.getBoundingClientRect();
-            const width = parseInt(furniture.style.width) || 60;
-            const newLeft = canvasRect.width - width - CONSTANTS.CANVAS_PADDING;
-            
-            furniture.style.left = newLeft + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 오른쪽으로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '오른쪽 정렬');
-        }
-    }
-
-    // 선택된 가구를 상단으로 정렬하는 메서드
-    alignTop() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const newTop = CONSTANTS.CANVAS_PADDING;
-            
-            furniture.style.top = newTop + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 상단으로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '상단 정렬');
-        }
-    }
-
-    // 선택된 가구를 중앙으로 정렬하는 메서드
-    alignMiddle() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const canvasRect = this.roomCanvas.getBoundingClientRect();
-            const height = parseInt(furniture.style.height) || 60;
-            const floorHeight = CONSTANTS.FLOOR_HEIGHT;
-            const availableHeight = canvasRect.height - floorHeight - CONSTANTS.CANVAS_PADDING * 2;
-            const newTop = CONSTANTS.CANVAS_PADDING + (availableHeight - height) / 2;
-            
-            furniture.style.top = newTop + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 중앙으로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '중앙 정렬');
-        }
-    }
-
-    // 선택된 가구를 하단으로 정렬하는 메서드 (바닥 위)
-    alignBottom() {
-        const furniture = this.state.getSelectedFurniture();
-        if (!furniture) return;
-
-        try {
-            const canvasRect = this.roomCanvas.getBoundingClientRect();
-            const height = parseInt(furniture.style.height) || 60;
-            const floorHeight = CONSTANTS.FLOOR_HEIGHT;
-            const newTop = canvasRect.height - floorHeight - height - CONSTANTS.CANVAS_PADDING;
-            
-            furniture.style.top = newTop + 'px';
-            this.updateSelectionInfo();
-            
-            ErrorHandler.showSuccess('가구가 하단으로 정렬되었습니다');
-        } catch (error) {
-            ErrorHandler.handle(error, '하단 정렬');
-        }
-    }
-
     // 가구가 선택되지 않았을 때 사용자에게 안내 메시지 표시
     showNoSelectionMessage() {
         ErrorHandler.showUserError('가구를 먼저 선택해주세요.');
     }
 
-    // 컨트롤 패널 활성화 메서드
+    // 컨트롤 패널 활성화 메서드 - 가구 선택했을 때
     enableControlPanel() {
         const controlButtons = [
             'bringForward', 'sendBackward',
@@ -950,7 +831,7 @@ class FurnitureManager {
         });
     }
 
-    // 컨트롤 패널 비활성화 메서드
+    // 컨트롤 패널 비활성화 메서드 - 가구 선택하지 않았을 때
     disableControlPanel() {
         const controlButtons = [
             'bringForward', 'sendBackward',
@@ -1240,10 +1121,6 @@ class ScreenshotManager {
             const selectedElements = this.roomCanvas.querySelectorAll('.selected');
             selectedElements.forEach(el => el.classList.remove('selected'));
 
-            // 캡처를 위한 특별한 준비 (바닥 스타일 강제 적용 등)
-            // html2canvas가 CSS를 제대로 인식하지 못하는 경우를 대비
-            await this.prepareForCapture();
-
             // 브라우저가 모든 스타일을 렌더링할 때까지 대기
             await this.waitForRender();
 
@@ -1262,11 +1139,6 @@ class ScreenshotManager {
                 scrollY: 0,
                 windowWidth: window.innerWidth,
                 windowHeight: window.innerHeight,
-                onclone: (clonedDoc, element) => {
-                    // 복제된 문서에서 바닥 스타일 강제 적용
-                    // html2canvas가 DOM을 복제할 때 스타일이 제대로 적용되지 않는 문제 해결
-                    this.forceFloorStyleInClone(clonedDoc);
-                }
             });
 
             // 선택 표시 복구 (캡처 완료 후 원래 상태로 되돌림)
@@ -1283,127 +1155,6 @@ class ScreenshotManager {
             captureBtn.disabled = false;
             captureBtn.classList.remove('loading');
         }
-    }
-
-    // 캡처 전 준비 작업 - 바닥 요소를 다시 생성하여 렌더링 문제 해결
-    // html2canvas가 CSS 클래스를 제대로 인식하지 못하는 경우를 대비하여 인라인 스타일로 강제 적용
-    async prepareForCapture() {
-        const floor = document.querySelector('.floor');
-        if (floor) {
-            // 기존 바닥 요소 제거 (캡처 시 스타일 문제 방지)
-            floor.remove();
-
-            // 새 바닥 요소 생성
-            const newFloor = document.createElement('div');
-            newFloor.className = 'floor';
-            newFloor.dataset.floorType = this.state.floor.type;
-
-            // 모든 스타일을 인라인으로 직접 적용 (CSS 클래스 의존성 제거)
-            this.applyInlineFloorStyles(newFloor);
-
-            // 캔버스에 새 바닥 추가
-            this.roomCanvas.appendChild(newFloor);
-
-            // 바닥 매니저의 참조 업데이트
-            this.floorManager.floorElement = newFloor;
-        }
-    }
-
-    // 바닥 요소에 인라인 스타일을 직접 적용하는 메서드
-    // html2canvas에서 CSS 클래스가 제대로 인식되지 않는 문제를 해결
-    applyInlineFloorStyles(floorElement) {
-        // 기본 레이아웃 스타일들을 인라인으로 강제 적용
-        const baseStyles = {
-            position: 'absolute',
-            left: '0px',
-            right: '0px',
-            bottom: '0px',
-            width: '100%',
-            height: `${CONSTANTS.FLOOR_HEIGHT}px`,
-            borderRadius: '0 0 12px 12px',
-            zIndex: '2',
-            display: 'block !important',      // CSS와 관계없이 강제 표시
-            visibility: 'visible !important',
-            opacity: '1 !important',
-            pointerEvents: 'none',
-            boxSizing: 'border-box'
-        };
-
-        // 기본 스타일 적용
-        Object.assign(floorElement.style, baseStyles);
-
-        // 바닥 타입별 스타일 적용
-        if (this.state.floor.type === 'upload' && this.state.floor.imageData) {
-            // 업로드된 이미지 사용
-            Object.assign(floorElement.style, {
-                backgroundImage: `url('${this.state.floor.imageData}')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                borderTop: '4px solid #bfa16a'
-            });
-        } else if (FLOOR_STYLES[this.state.floor.type]) {
-            // 미리 정의된 스타일 사용
-            Object.assign(floorElement.style, FLOOR_STYLES[this.state.floor.type]);
-        } else {
-            // 기본 스타일 사용
-            Object.assign(floorElement.style, FLOOR_STYLES.default);
-        }
-
-        // 강제 리플로우 (브라우저가 스타일을 즉시 적용하도록 강제)
-        // offsetHeight를 읽으면 브라우저가 강제로 레이아웃을 다시 계산
-        floorElement.offsetHeight;
-    }
-
-    // html2canvas의 복제된 문서에서 바닥 스타일을 강제 적용하는 메서드
-    // html2canvas는 DOM을 복제하여 캡처하는데, 이 과정에서 스타일이 누락될 수 있음
-    forceFloorStyleInClone(clonedDoc) {
-        const clonedFloor = clonedDoc.querySelector('.floor');
-        if (!clonedFloor) return;
-
-        // 복제된 문서의 바닥에 모든 스타일을 !important로 강제 적용
-        const styles = {
-            position: 'absolute !important',
-            left: '0px !important',
-            right: '0px !important',
-            bottom: '0px !important',
-            width: '100% !important',
-            height: `${CONSTANTS.FLOOR_HEIGHT}px !important`,
-            borderRadius: '0 0 12px 12px !important',
-            zIndex: '2 !important',
-            display: 'block !important',
-            visibility: 'visible !important',
-            opacity: '1 !important',
-            pointerEvents: 'none !important',
-            boxSizing: 'border-box !important'
-        };
-
-        // 기본 스타일 강제 적용 (!important로 우선순위 최고로 설정)
-        Object.entries(styles).forEach(([property, value]) => {
-            clonedFloor.style.setProperty(property, value, 'important');
-        });
-
-        // 바닥 타입별 스타일 적용
-        if (this.state.floor.type === 'upload' && this.state.floor.imageData) {
-            // 업로드 이미지 배경 스타일
-            clonedFloor.style.setProperty('background-image', `url('${this.state.floor.imageData}')`, 'important');
-            clonedFloor.style.setProperty('background-size', 'cover', 'important');
-            clonedFloor.style.setProperty('background-position', 'center', 'important');
-            clonedFloor.style.setProperty('background-repeat', 'no-repeat', 'important');
-            clonedFloor.style.setProperty('border-top', '4px solid #bfa16a', 'important');
-        } else {
-            // 미리 정의된 바닥 스타일
-            const floorStyle = FLOOR_STYLES[this.state.floor.type] || FLOOR_STYLES.default;
-            Object.entries(floorStyle).forEach(([property, value]) => {
-                // camelCase를 CSS kebab-case로 변환 (예: backgroundColor → background-color)
-                const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
-                clonedFloor.style.setProperty(cssProperty, value, 'important');
-            });
-        }
-
-        // CSS 클래스와 데이터 속성도 추가 적용 (디버깅 및 스타일 적용 보조)
-        clonedFloor.className = 'floor';
-        clonedFloor.setAttribute('data-floor-type', this.state.floor.type);
     }
 
     // 브라우저가 모든 스타일을 완전히 렌더링할 때까지 대기하는 메서드
@@ -1431,6 +1182,7 @@ class ScreenshotManager {
         // 캡처된 이미지를 모달의 캔버스에 복사
         captureCanvas.width = canvas.width;   // 원본 해상도 유지
         captureCanvas.height = canvas.height;
+
         // 실제 캡처된 이미지의 비율에 맞게 style.width/style.height 동기화
         captureCanvas.style.width = canvas.width + 'px';
         captureCanvas.style.height = canvas.height + 'px';
@@ -1764,53 +1516,55 @@ class InMyRoomApp {
         return labels[type] || type;
     }
 
+    // 이력 타임라인 관련 메서드들
     pushHistory(label) {
-        // Remove redo states if any
+        // 이력 타임라인에서 중복 이력 제거
         if (this.historyPointer < this.historyTimeline.length - 1) {
             this.historyTimeline = this.historyTimeline.slice(0, this.historyPointer + 1);
         }
-        // Add new snapshot
-        const snapshot = this.snapshotRoomState();
-        snapshot.label = label || '이력';
-        this.historyTimeline.push(snapshot);
-        // Limit history length
+    
+        const snapshot = this.snapshotRoomState(); // 방 상태 스냅샷 생성
+        snapshot.label = label || '이력'; // 이력 라벨 설정
+        this.historyTimeline.push(snapshot); // 이력 타임라인에 추가
+        // 이력 타임라인 길이 제한
         if (this.historyTimeline.length > this.HISTORY_LIMIT) {
             this.historyTimeline.shift();
         }
-        this.historyPointer = this.historyTimeline.length - 1;
-        this.renderHistoryTimeline();
+        this.historyPointer = this.historyTimeline.length - 1; // 현재 포인터 업데이트
+        this.renderHistoryTimeline(); // 이력 타임라인 렌더링
     }
 
+    // 이력 타임라인 렌더링 메서드
     renderHistoryTimeline() {
-        const list = document.getElementById('historyList');
-        if (!list) return;
-        list.innerHTML = '';
-        this.historyTimeline.forEach((snap, idx) => {
-            const li = document.createElement('li');
-            li.className = 'history-item' + (idx === this.historyPointer ? ' active' : '');
-            li.tabIndex = 0;
-            li.setAttribute('role', 'option');
-            li.setAttribute('aria-selected', idx === this.historyPointer ? 'true' : 'false');
-            li.textContent = (snap.label || '이력') + ' #' + (idx + 1);
-            li.title = new Date(snap.timestamp).toLocaleString();
-            li.addEventListener('click', () => this.restoreHistory(idx));
+        const list = document.getElementById('historyList'); // 이력 타임라인 리스트 요소
+        if (!list) return; // 리스트 요소가 없으면 조기 반환
+        list.innerHTML = ''; // 리스트 내용 초기화
+        this.historyTimeline.forEach((snap, idx) => { // 이력 타임라인 배열을 순회하며 각 스냅샷에 대해 처리
+            const li = document.createElement('li'); // 새로운 리스트 아이템 생성
+            li.className = 'history-item' + (idx === this.historyPointer ? ' active' : ''); // 현재 포인터와 일치하는 경우 활성 클래스 추가
+            li.tabIndex = 0; // 탭 인덱스 설정
+            li.setAttribute('role', 'option'); // 역할 설정
+            li.setAttribute('aria-selected', idx === this.historyPointer ? 'true' : 'false'); // 선택 상태 설정
+            li.textContent = (snap.label || '이력') + ' #' + (idx + 1); // 텍스트 설정
+            li.title = new Date(snap.timestamp).toLocaleString(); // 타이틀 설정
+            li.addEventListener('click', () => this.restoreHistory(idx)); // 클릭 이벤트 리스너 설정
             li.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') this.restoreHistory(idx);
+                if (e.key === 'Enter' || e.key === ' ') this.restoreHistory(idx); // 엔터 또는 스페이스바 키 입력 시 해당 이력 복원
             });
-            list.appendChild(li);
+            list.appendChild(li); // 리스트에 아이템 추가
         });
     }
 
+    // 이력 복원 메서드
     async restoreHistory(idx) {
-        if (idx < 0 || idx >= this.historyTimeline.length) return;
-        const snap = this.historyTimeline[idx];
-        // Use StateManager's restore logic
-        await this.stateManager.clearAllFurniture();
-        await this.stateManager.restoreBackground(snap.background);
-        await this.stateManager.restoreFloor(snap.floor);
-        await this.stateManager.restoreFurniture(snap.furniture);
-        this.historyPointer = idx;
-        this.renderHistoryTimeline();
+        if (idx < 0 || idx >= this.historyTimeline.length) return; // 인덱스가 범위를 벗어나면 조기 반환
+        const snap = this.historyTimeline[idx]; // 해당 인덱스의 스냅샷 가져오기
+        await this.stateManager.clearAllFurniture(); // 모든 가구 삭제
+        await this.stateManager.restoreBackground(snap.background); // 배경 복원
+        await this.stateManager.restoreFloor(snap.floor); // 바닥 복원
+        await this.stateManager.restoreFurniture(snap.furniture); // 가구 복원
+        this.historyPointer = idx; // 현재 포인터 업데이트
+        this.renderHistoryTimeline(); // 이력 타임라인 렌더링
     }
 
     // 애플리케이션 초기화 메서드 - 모든 구성 요소를 순차적으로 초기화
@@ -1938,83 +1692,6 @@ class InMyRoomApp {
                 const furniture = this.state.getSelectedFurniture();
                 const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
                 this.pushHistory(`${furnitureLabel} 크기 조절`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // ============================================
-        // 가구 정렬 버튼들
-        // 선택된 가구를 정렬하는 기능들
-        // ============================================
-
-        // 가구 왼쪽 정렬 버튼
-        document.getElementById('alignLeft')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignLeft();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // 가구 가운데 정렬 버튼
-        document.getElementById('alignCenter')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignCenter();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // 가구 오른쪽 정렬 버튼
-        document.getElementById('alignRight')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignRight();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // 가구 상단 정렬 버튼
-        document.getElementById('alignTop')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignTop();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // 가구 중앙 정렬 버튼
-        document.getElementById('alignMiddle')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignMiddle();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
-            } else {
-                this.showNoSelectionMessage();
-            }
-        });
-
-        // 가구 하단 정렬 버튼
-        document.getElementById('alignBottom')?.addEventListener('click', () => {
-            if (this.state.getSelectedFurniture()) {
-                this.furnitureManager.alignBottom();
-                const furniture = this.state.getSelectedFurniture();
-                const furnitureLabel = furniture ? this.getFurnitureTypeLabel(furniture.dataset.type) : '가구';
-                this.pushHistory(`${furnitureLabel} 정렬`);
             } else {
                 this.showNoSelectionMessage();
             }
